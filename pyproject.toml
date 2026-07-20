@@ -3,9 +3,17 @@ name = "dl"
 version = "0.1.0"
 description = "Deep learning models implemented from scratch, for learning."
 requires-python = ">=3.10"
-# torch / torchvision are intentionally not pinned here: the installed build is
-# a CUDA-specific wheel (+cu121) that does not resolve from plain PyPI.
-# Install them separately from the PyTorch index.
+# Abstract dependencies: what the package needs, unpinned. The exact versions —
+# including the CUDA-specific +cu121 PyTorch build, which does not resolve from
+# plain PyPI — are pinned in requirements.txt.
+dependencies = [
+    "torch",
+    "torchvision",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+notebook = ["ipykernel"]
 
 [build-system]
 requires = ["setuptools>=61"]
