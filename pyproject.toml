@@ -1,0 +1,15 @@
+[project]
+name = "dl"
+version = "0.1.0"
+description = "Deep learning models implemented from scratch, for learning."
+requires-python = ">=3.10"
+# torch / torchvision are intentionally not pinned here: the installed build is
+# a CUDA-specific wheel (+cu121) that does not resolve from plain PyPI.
+# Install them separately from the PyTorch index.
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["dl*"]
