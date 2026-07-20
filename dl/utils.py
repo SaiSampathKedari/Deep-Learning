@@ -65,3 +65,25 @@ def visualize_dataset(X_data, y_data, samples_per_class, class_list):
 
     img = make_grid(samples, nrow=samples_per_class)
     return tensor_to_image(img)
+
+
+def sample_batch(X: torch.Tensor, y: torch.Tensor, num_train: int, batch_size: int):
+    """
+    Sample batch_size elements from the training data and their
+    corresponding labels to use in this round of gradient descent.
+
+    Lives here so that models don't have to import each other. It moves into
+    solver.py once a shared training loop exists.
+
+    Inputs:
+    - X: A PyTorch tensor of shape (N, D) giving training data.
+    - y: A PyTorch tensor of shape (N,) giving training labels.
+    - num_train: Integer giving the number of training examples.
+    - batch_size: Integer giving the number of elements to sample.
+
+    Returns a tuple of:
+    - X_batch: Tensor of shape (batch_size, D)
+    - y_batch: Tensor of shape (batch_size,)
+    """
+    # TODO(you): implement. Hint: torch.randint to generate the indices.
+    raise NotImplementedError
