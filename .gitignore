@@ -12,6 +12,7 @@ dist/
 .idea/
 
 # Model checkpoints
+checkpoints/
 *.pt
 *.pth
 
