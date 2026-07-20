@@ -1,4 +1,23 @@
+# Python
 .venv/
 __pycache__/
+*.egg-info/
+build/
+dist/
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Editors / IDE  (browse.vc.db alone is >1GB)
+.vscode/
+.idea/
+
+# Model checkpoints
 *.pt
-data/cifar-10-batches-py/
+*.pth
+
+# Datasets (downloaded — never versioned)
+data/raw/
+cifar-10-batches-py
+cifar-10-python.tar.gz
+mnist_dataset/
+MNIST/
