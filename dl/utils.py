@@ -97,3 +97,48 @@ def sample_batch(
     y_batch = y[indices]
 
     return X_batch, y_batch
+
+
+def accuracy(
+    y_pred: torch.Tensor,
+    y_true: torch.Tensor,
+) -> float:
+    """Return classification accuracy as a fraction in [0, 1]."""
+    return (y_pred == y_true).double().mean().item()
+
+
+def visualize_linear_weights(
+    weights: torch.Tensor,
+    class_names,
+    image_shape=(3, 32, 32),
+    title: str = None,
+):
+    """
+    Plot each class's learned weight vector as an image.
+
+    A linear classifier's weight column for a class is a template that class's
+    images are matched against, so it should look faintly like the class.
+
+    Inputs:
+    - weights: Weight matrix of shape (D + 1, C); the last row is the bias
+      contributed by the bias trick and is dropped before reshaping.
+    - class_names: List of C class names, in label order.
+    - image_shape: (channels, height, width) of a single input image.
+    - title: Optional figure title.
+    """
+    channels, height, width = image_shape
+
+    w = weights[:-1, :].reshape(channels, height, width, len(class_names))
+    w = w.transpose(0, 2).transpose(1, 0)      # -> (height, width, channels, C)
+    w_min, w_max = w.min(), w.max()
+
+    plt.figure(figsize=(12, 5))
+    for i, name in enumerate(class_names):
+        plt.subplot(2, 5, i + 1)
+        img = 255.0 * (w[:, :, :, i].squeeze() - w_min) / (w_max - w_min)
+        plt.imshow(img.type(torch.uint8).cpu())
+        plt.axis("off")
+        plt.title(name)
+    if title:
+        plt.suptitle(title)
+    plt.show()
