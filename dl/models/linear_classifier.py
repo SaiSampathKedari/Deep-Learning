@@ -4,7 +4,7 @@ from typing import Callable, Optional, TypeAlias
 import torch
 import random
 
-from dl.utils import sample_batch
+from dl.utils import accuracy, reset_seed, sample_batch
 
 
 LossOutput: TypeAlias = tuple[torch.Tensor, torch.Tensor]
@@ -475,3 +475,66 @@ def predict_linear_classifier(
     scores = X @ W
     return scores.argmax(dim=1)
 
+
+def tune(
+    make_model,
+    data,
+    learning_rates,
+    regularization_strengths,
+    num_iters: int = 1500,
+    verbose: bool = True,
+):
+    """
+    Grid search over (learning_rate, reg), scored on the validation set.
+
+    This is specific to the LinearClassifier interface: it constructs a model
+    with no arguments and calls
+    .train(X, y, learning_rate=, reg=, num_iters=).
+    Models with a different signature need their own version — a two-layer
+    net, for instance, must also search over hidden_size, which is a
+    constructor argument rather than a training argument.
+
+    Inputs:
+    - make_model: Zero-argument callable returning a fresh model, e.g. LinearSVM.
+    - data: Dict containing X_train / y_train / X_val / y_val.
+    - learning_rates: Candidate learning rates.
+    - regularization_strengths: Candidate regularization strengths.
+    - num_iters: SGD iterations per candidate.
+    - verbose: Whether to print each candidate's scores.
+
+    Returns:
+    - best_model: The model with the highest validation accuracy.
+    - best_val: That validation accuracy, as a fraction in [0, 1].
+    - results: Dict mapping (lr, reg) to (train_acc, val_acc), both fractions.
+    """
+    best_model, best_val, results = None, -1.0, {}
+
+    for lr in learning_rates:
+        for reg in regularization_strengths:
+            reset_seed(0)
+            model = make_model()
+            model.train(
+                data["X_train"],
+                data["y_train"],
+                learning_rate=lr,
+                reg=reg,
+                num_iters=num_iters,
+            )
+
+            train_acc = accuracy(model.predict(data["X_train"]), data["y_train"])
+            val_acc = accuracy(model.predict(data["X_val"]), data["y_val"])
+            results[(lr, reg)] = (train_acc, val_acc)
+
+            if verbose:
+                print(
+                    f"lr {lr:.1e}  reg {reg:.1e}   "
+                    f"train {train_acc:.4f}   val {val_acc:.4f}"
+                )
+
+            if val_acc > best_val:
+                best_model, best_val = model, val_acc
+
+    if verbose:
+        print(f"\nbest validation accuracy: {best_val:.4f}")
+
+    return best_model, best_val, results
