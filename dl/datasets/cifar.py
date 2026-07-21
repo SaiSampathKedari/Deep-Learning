@@ -9,6 +9,12 @@ from torchvision.datasets import CIFAR10
 from ..paths import DATA_ROOT
 from ..utils import reset_seed, tensor_to_image
 
+# CIFAR-10 class names in label order, so label i corresponds to CLASSES[i].
+CLASSES = [
+    "plane", "car", "bird", "cat", "deer",
+    "dog", "frog", "horse", "ship", "truck",
+]
+
 
 def _extract_tensors(dset, num=None, x_dtype=torch.float32):
     """
