@@ -15,7 +15,7 @@ class TwoLayerNet:
     hidden_size : int,
     output_size : int,
     dtype       : torch.dtype = torch.float32,
-    device      : str | torch.device = "cuda",
+    device      : str | torch.device = "cpu",
     std         : float = 1e-4
   )->None:
     reset_seed(0)
@@ -93,7 +93,7 @@ class TwoLayerNet:
     print(f"Saved in {path}")
 
   def load(self, path: str) -> None:
-      checkpoint = torch.load(path, map_location="cpu")
+      checkpoint = torch.load(path, map_location="cpu", weights_only=True)
       required_params = {"W1", "b1", "W2", "b2"}
 
       if not isinstance(checkpoint, dict):
@@ -398,7 +398,7 @@ def find_best_net(
                         f"lr={learning_rate}, "
                         f"reg={reg}, "
                         f"decay={learning_rate_decay}, "
-                        f"val_acc={val_acc:.2f}%"
+                        f"val_acc={val_acc:.4f}"
                     )
 
                     if val_acc > best_val_acc:
