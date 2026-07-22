@@ -1,55 +1,60 @@
 # Deep-Learning
 
-Deep learning models implemented from scratch, for learning — losses, gradients,
-and training loops written by hand rather than pulled out of a framework.
+Deep learning models implemented from scratch in PyTorch.
 
-## Setup
+## Contents
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
+| Component | Details |
+|---|---|
+| Linear classifiers | Multiclass SVM and Softmax, naive and vectorized, with analytic gradients |
+| Two-layer network | `affine -> ReLU -> affine` with manual backprop |
+| Layers | `Linear`, `ReLU`, `Dropout`, `Linear_ReLU`, `SoftmaxCrossEntropy` |
+| Fully connected network | Arbitrary depth, optional dropout, L2 regularization |
+| Optimizers | SGD, SGD with momentum, RMSProp, Adam |
+| Solver | Training loop with checkpointing and learning rate decay |
+| Gradient checking | Sparse spot checks and full numeric gradients |
 
-pip install -r requirements.txt   # pinned env, incl. the CUDA 12.1 PyTorch build
-pip install -e .                  # makes `import dl` work from anywhere
-```
+## Results
+
+CIFAR-10, CPU, seed 0. Reproducible from `notebooks/`.
+
+| Model | Val | Test |
+|---|---|---|
+| Linear SVM | 0.3849 | 0.3818 |
+| Softmax | 0.4000 | 0.4034 |
+| Two-layer net | 0.4503 | 0.4686 |
 
 ## Layout
 
 ```
 dl/
-├── utils.py          reset_seed, tensor_to_image, visualize_dataset
-├── grad_check.py     grad_check_sparse, compute_numeric_gradient, rel_error
-└── datasets/         one module per dataset
-    └── cifar.py      cifar10, preprocess_cifar10
-data/raw/             downloaded datasets (git-ignored)
+├── nn/          layers, file names follow torch/nn/modules
+├── optim.py     sgd, sgd_momentum, rmsprop, adam
+├── solver.py    training loop
+├── models/      one module per architecture
+├── datasets/    one module per dataset
+├── grad_check.py
+└── utils.py
+
+notebooks/       experiments, the .py files are the source of truth
+data/raw/        downloaded datasets (git-ignored)
+checkpoints/     saved weights (git-ignored)
 ```
 
-To add a dataset, drop `dl/datasets/<name>.py` with its own loader (downloading
-into `data/raw/`) and re-export it from `dl/datasets/__init__.py`. Nothing else moves.
+## Setup
 
-## Usage
-
-```python
-import torch
-import dl
-
-dl.reset_seed(0)
-
-data = dl.datasets.preprocess_cifar10(bias_trick=True, cuda=True, dtype=torch.float64)
-# -> dict with X_train/y_train, X_val/y_val, X_test/y_test
-
-# verify an analytic gradient against a numeric one
-dl.grad_check.grad_check_sparse(f, W, grad)   # want relative error < 1e-5
+```bash
+pip install -r requirements.txt
+pip install -e .
 ```
 
-CIFAR-10 downloads automatically into `data/raw/` the first time it is used.
+CIFAR-10 downloads into `data/raw/` on first use. Set `DL_DATA_ROOT` to change
+the location.
 
-> **Run from the repo root.** The dataset path is resolved relative to the current
-> working directory, so calling `preprocess_cifar10()` from another directory will
-> re-download the data into that directory.
+## Reference
 
-## Dependencies
+Follows the assignments from [EECS 498-007 / 598-005: Deep Learning for Computer
+Vision](https://web.eecs.umich.edu/~justincj/teaching/eecs498/), University of
+Michigan.
 
-- `pyproject.toml` declares the **abstract** dependencies — what the package needs.
-- `requirements.txt` pins the **concrete** environment — exact versions plus the
-  PyTorch CUDA index, since the `+cu121` wheels are not on plain PyPI.
+MIT licensed.
